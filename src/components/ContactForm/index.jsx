@@ -1,56 +1,64 @@
-import { Component } from 'react';
+import { useState } from 'react';
+// import { Component } from 'react';
 
-export class ContactForm extends Component {
-  state = {
-    name: '',
-    number: '',
-  };
+export const ContactForm = ({ addCont }) => {
+  const [name, setName] = useState('');
+  const [number, setNumber] = useState('');
 
-  handleSubmit = e => {
+  const handleSubmit = e => {
     e.preventDefault();
-    this.props.addCont(this.state);
+    // console.log(e);
+    addCont({ name: name, number: number });
+
     e.target.name.value = '';
     e.target.number.value = '';
   };
 
-  handleChange = ({ target: { name, value } }) => {
-    this.setState({ [name]: value });
+  const handleChange = ({ target: { name, value } }) => {
+    switch (name) {
+      case 'name':
+        setName(value);
+        break;
+      case 'number':
+        setNumber(value);
+        break;
+      default:
+        return;
+    }
   };
 
-  render() {
-    return (
-      <form onSubmit={this.handleSubmit}>
-        <div className="mb-3">
-          <label htmlFor="exampleFormControlInput1" className="form-label">
-            Name
-          </label>
-          <input
-            type="text"
-            name="name"
-            required
-            className="form-control"
-            id="exampleFormControlInput1"
-            onChange={this.handleChange}
-          />
-        </div>
-        <div className="mb-3">
-          <label htmlFor="exampleFormControlInput1" className="form-label">
-            Telephone
-          </label>
-          <input
-            type="tel"
-            name="number"
-            required
-            className="form-control"
-            id="exampleFormControlInput2"
-            onChange={this.handleChange}
-          />
-        </div>
+  return (
+    <form onSubmit={handleSubmit}>
+      <div className="mb-3">
+        <label htmlFor="exampleFormControlInput1" className="form-label">
+          Name
+        </label>
+        <input
+          type="text"
+          name="name"
+          required
+          className="form-control"
+          id="exampleFormControlInput1"
+          onChange={handleChange}
+        />
+      </div>
+      <div className="mb-3">
+        <label htmlFor="exampleFormControlInput1" className="form-label">
+          Telephone
+        </label>
+        <input
+          type="tel"
+          name="number"
+          required
+          className="form-control"
+          id="exampleFormControlInput2"
+          onChange={handleChange}
+        />
+      </div>
 
-        <button className="btn btn-primary" type="submit">
-          Add contact
-        </button>
-      </form>
-    );
-  }
-}
+      <button className="btn btn-primary" type="submit">
+        Add contact
+      </button>
+    </form>
+  );
+};

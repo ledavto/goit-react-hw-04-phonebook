@@ -1,52 +1,46 @@
-import { Component } from 'react';
+// import { Component } from 'react';
 import { nanoid } from 'nanoid';
 import { ContactForm } from './ContactForm';
 import { Filter } from './Filter';
 import { ContactList } from './ContactList';
+import { useState, useEffect } from 'react';
 
 //rafce
 
-export class App extends Component {
-  state = {
-    contacts: [
-      // { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
-      // { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
-      // { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
-      // { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
-    ],
-    filter: '',
-  };
+export const App = () => {
+  const [contacts, setContacts] = useState([]);
+  const [filter, setFilter] = useState('');
+  // { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
+  // { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
+  // { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
+  // { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
 
-  componentDidMount() {
+  //Один раз при монтировании
+  useEffect(() => {
+    // console.log('Mouting phase: 1 Step');
     const strFromLocal = localStorage.getItem('array-contacts-data');
     // console.log(strFromLocal);
     const parsed = JSON.parse(strFromLocal);
-    // console.log(parsed);
-    if (strFromLocal)
-      this.setState({
-        contacts: parsed,
-      });
-  }
+    if (strFromLocal) setContacts([...parsed]);
+  }, []);
 
-  componentDidUpdate(prevProps, prevState) {
-    if (this.state.contacts !== prevState.contacts) {
-      //Добавляем в локал сторедж
+  useEffect(() => {
+    // console.log('Updating phase: same when componentDidUpdate runs');
+    if (contacts.length > 0)
       localStorage.setItem(
         'array-contacts-data',
-        JSON.stringify(this.state.contacts)
+        JSON.stringify([...contacts])
       );
-      // console.log(this.state.contacts);
-    }
-  }
+  }, [contacts]);
 
-  addContacts = newCont => {
-    const contObj = { id: nanoid(), ...newCont };
+  const addContacts = newCont => {
+    if (newCont.name) {
+      const contObj = { id: nanoid(), ...newCont };
 
-    this.setState(prev => {
       //Массив имен из объекта
       const arrName = [];
-      for (const contacts of prev.contacts) {
-        arrName.push(contacts.name);
+      for (const contact of contacts) {
+        arrName.push(contact.name);
       }
 
       //Проверка на наличие уже такого имени
@@ -56,38 +50,36 @@ export class App extends Component {
         return;
       }
 
-      //Добавляем в State
-      return {
-        contacts: [...prev.contacts, contObj],
-      };
-    });
+      setContacts([...contacts, contObj]);
+      console.log(contacts);
+    }
   };
 
-  filterContacts = e => {
-    this.setState({ filter: e });
+  const filterContacts = e => {
+    setFilter(e);
   };
 
-  deleteCont = id => {
-    this.setState(prev => ({
-      contacts: prev.contacts.filter(el => el.id !== id),
-    }));
+  const deleteCont = id => {
+    setContacts(contacts.filter(el => el.id !== id));
+
+    // this.setState(prev => ({
+    //   contacts: prev.contacts.filter(el => el.id !== id),
+    // }));
   };
 
-  render() {
-    return (
-      <div className="container">
-        <h1>Phonebook</h1>
-        <ContactForm addCont={this.addContacts} />
-        <h2>Contacts</h2>
-        <Filter filterStr={this.filterContacts} />
-        {this.state.contacts.length > 0 && (
-          <ContactList
-            listCont={this.state.contacts}
-            filter={this.state.filter}
-            deleteCont={this.deleteCont}
-          />
-        )}
-      </div>
-    );
-  }
-}
+  return (
+    <div className="container">
+      <h1>Phonebook</h1>
+      <ContactForm addCont={addContacts} />
+      <h2>Contacts</h2>
+      <Filter filterStr={filterContacts} />
+      {contacts.length > 0 && (
+        <ContactList
+          listCont={contacts}
+          filter={filter}
+          deleteCont={deleteCont}
+        />
+      )}
+    </div>
+  );
+};
